@@ -1,6 +1,6 @@
 {
   "name": "awe-nng",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Awsome NNG module on C N-API",
   "author": "Vitold Sedyshev <vit1251@gmail.com>",
   "contributors": [],
