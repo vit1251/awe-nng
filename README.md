@@ -1,6 +1,6 @@
 # Awsome NNG pure C N-API module
 
-# System requirements
+## System requirements
 
 Your distribution should have the following packages. I will provide examples of package names for Debian/Ubuntu,
 but if you are using other distributions, you probably know well how to find the corresponding packages or
@@ -17,7 +17,7 @@ so I only tested it under Linux.
 If you wish, you can contribute to improving the package, but officially,
 I don't strongly support these systems.
 
-# Install package
+## Install package
 
     $ npm install awe-nng --save
 
