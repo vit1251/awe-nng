@@ -11,7 +11,9 @@ napi_value Socket(napi_env env, napi_callback_info info);
 void SocketDestructor(napi_env env, void* data, void* hint) {
     struct SocketWrapper* wrapper = (struct SocketWrapper*)data;
     if (!wrapper->closed) {
+#ifdef _DEBUG
         fprintf(stderr, "debug: close socket\n");
+#endif
         nng_close(wrapper->socket);
     }
     free(wrapper);
@@ -47,7 +49,9 @@ napi_value SocketConstructor(napi_env env, napi_callback_info info) {
     } else if (strcmp(type, "sub") == 0) {
         result = nng_sub0_open(&wrapper->socket);
     } else if (strcmp(type, "req") == 0) {
+#ifdef _DEBUG
         fprintf(stderr, "debug: create request socket %u\n", wrapper->index);
+#endif
         result = nng_req0_open(&wrapper->socket);
     } else if (strcmp(type, "rep") == 0) {
         result = nng_rep0_open(&wrapper->socket);
@@ -169,7 +173,9 @@ napi_value Dial(napi_env env, napi_callback_info info) {
         return NULL;
     }
 
+#ifdef _DEBUG
     fprintf(stderr, "debug: Dial socket %u on %s\n", wrapper->index, addr);
+#endif
 
     rv = nng_dial(wrapper->socket, addr, NULL, 0);
     if (rv != 0) {
@@ -197,10 +203,14 @@ static void ReadExecute(napi_env env, void* data) {
 
     rv = nng_recv(arg->socket, &buf, &sz, NNG_FLAG_ALLOC);
 
+#ifdef _DEBUG
     fprintf(stderr, "debug: RX err = %u\n", rv);
+#endif
 
     if (rv == 0) {
+#ifdef _DEBUG
         fprintf(stderr, "debug: RX size = %u buf = %.*s\n", sz, sz, buf);
+#endif
         arg->msg = buf != NULL ? strndup(buf, sz) : NULL;
         nng_free(buf, sz);
     } else {
@@ -215,7 +225,9 @@ static void ReadComplete(napi_env env, napi_status status, void* data) {
 
     if (arg->err == 0) {
         napi_value result;
+#ifdef _DEBUG
         fprintf(stderr, "info: RX err = %u\n", arg->err);
+#endif
         status2 = napi_create_string_utf8(env, arg->msg, NAPI_AUTO_LENGTH, &result);
         status2 = napi_resolve_deferred(env, arg->deferred, result);
 
@@ -226,7 +238,9 @@ static void ReadComplete(napi_env env, napi_status status, void* data) {
 
         const char *err = nng_strerror(arg->err);
 
+#ifdef _DEBUG
         fprintf(stderr, "error: RX err = %u\n", arg->err);
+#endif
 
         status2 = napi_get_value_int32(env, code, &arg->err);
         status2 = napi_create_string_utf8(env, err, NAPI_AUTO_LENGTH, &msg);
@@ -263,7 +277,9 @@ napi_value Recv(napi_env env, napi_callback_info info) {
         return NULL;
     }
 
+#ifdef _DEBUG
     fprintf(stderr, "debug: Receive on socket %u\n", wrapper->index);
+#endif
 
     ptr = (struct AsyncRead *)malloc(sizeof(struct AsyncRead));
     if (ptr == NULL) {
@@ -334,7 +350,9 @@ napi_value Send(napi_env env, napi_callback_info info) {
         return NULL;
     }
 
+#ifdef _DEBUG
     fprintf(stderr, "debug: TX on socket %u message '%.*s'\n", wrapper->index, message_len, message);
+#endif
 
     rv = nng_send(wrapper->socket, message, message_len, 0);
     if (rv != 0) {

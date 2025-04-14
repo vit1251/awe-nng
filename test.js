@@ -6,6 +6,7 @@ const addon = bindings('awe-nng');
 class App {
   prev = Date.now();
   stamp = 0;
+  reqId = 0;
 
   periodic() {
     setInterval(() => {
@@ -17,26 +18,37 @@ class App {
   }
 
   async query() {
+    /* Step 1. Update request number */
+    this.reqId = this.reqId + 1;
+    /* Step 2. Perform request */
     const req = new addon.Socket('req');
     await req.Dial('tcp://127.0.0.1:5555');
+    console.log(`Request ${this.reqId}...`);
     await req.Send(JSON.stringify({
-        title: 'Главная страница',
+        title: 'Welcome',
         format: 'application/xml',
     }));
     const msg = await req.Recv();
-    console.log(`ответ от сервера: msg = ${msg}`);
+    console.log(`Response ${this.reqId}: msg = ${msg}`);
     req.Close();
+  }
+
+  registerRequest(timeout = 1_000) {
+    setTimeout(() => {
+        this.query()
+          .then(() => {
+              console.log('Done.')
+              this.registerRequest(timeout);
+          })
+          .catch((err) => console.error(err));
+    }, timeout);
   }
 
   run() {
     this.periodic();
-    setTimeout(() => {
-        this.query()
-          .then(() => console.log('Done.'))
-          .catch((err) => console.error(err));
-    }, 1000);
+    this.registerRequest(1_200);
   }
-  
+
 }
 
 const app = new App();
