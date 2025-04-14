@@ -1,7 +1,5 @@
 
-import bindings from 'bindings';
-const addon = bindings('awe-nng');
-
+import { Socket } from './index.js';
 
 class App {
   prev = Date.now();
@@ -21,7 +19,7 @@ class App {
     /* Step 1. Update request number */
     this.reqId = this.reqId + 1;
     /* Step 2. Perform request */
-    const req = new addon.Socket('req');
+    const req = new Socket('req');
     await req.Dial('tcp://127.0.0.1:5555');
     console.log(`Request ${this.reqId}...`);
     await req.Send(JSON.stringify({

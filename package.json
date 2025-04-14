@@ -1,6 +1,6 @@
 {
   "name": "awe-nng",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Awsome NNG module on C N-API",
   "author": "Vitold Sedyshev <vit1251@gmail.com>",
   "contributors": [],
@@ -12,7 +12,8 @@
   ],
   "homepage": "https://github.com/vit1251/awe-nng",
   "license": "MIT",
-  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "install": "cmake-js compile",
     "test": "mocha --recursive --color"
