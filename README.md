@@ -1,4 +1,4 @@
-# Awsome NNG pure C N-API module
+# Awe NNG pure C N-API module
 
 ## System requirements
 
