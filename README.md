@@ -17,6 +17,10 @@ so I only tested it under Linux.
 If you wish, you can contribute to improving the package, but officially,
 I don't strongly support these systems.
 
+## Install dependencies
+    
+    $ sudo apt install libnng-dev
+
 ## Install package
 
     $ npm install awe-nng --save
