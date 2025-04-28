@@ -322,7 +322,7 @@ napi_value Send(napi_env env, napi_callback_info info) {
     napi_value argv[1];
     napi_status status;
     napi_value jsthis;
-    char message[4096];
+    char *message = NULL;
     size_t message_len;
     int rv;
     napi_value resp;
@@ -330,24 +330,35 @@ napi_value Send(napi_env env, napi_callback_info info) {
     status = napi_get_cb_info(env, info, &argc, argv, &jsthis, NULL);
     if (status != napi_ok) {
         napi_throw_error(env, NULL, "Expected 1 arguments");
-        return NULL;
+        goto on_error;
     }
 
     if (argc != 1) {
         napi_throw_error(env, NULL, "Expected 1 arguments");
-        return NULL;
+        goto on_error;
     }
 
     status = napi_unwrap(env, jsthis, (void **)&wrapper);
     if (status != napi_ok) {
         napi_throw_error(env, NULL, "Expected 1 arguments");
-        return NULL;
+        goto on_error;
     }
 
-    status = napi_get_value_string_utf8(env, argv[0], message, sizeof(message), &message_len);
+    status = napi_get_value_string_utf8(env, argv[0], NULL, 0, &message_len);
     if (status != napi_ok) {
         napi_throw_error(env, NULL, "Expected 1 arguments");
-        return NULL;
+        goto on_error;
+    }
+
+    message = (char *)malloc(message_len + 1);
+    if (message == NULL) {
+        goto on_error;
+    }
+
+    status = napi_get_value_string_utf8(env, argv[0], message, message_len, &message_len);
+    if (status != napi_ok) {
+        napi_throw_error(env, NULL, "Expected 1 arguments");
+        goto on_error;
     }
 
 #ifdef _DEBUG
@@ -357,15 +368,20 @@ napi_value Send(napi_env env, napi_callback_info info) {
     rv = nng_send(wrapper->socket, message, message_len, 0);
     if (rv != 0) {
         napi_throw_error(env, NULL, "Failed to send message");
-        return NULL;
+        goto on_error;
     }
 
     status = napi_get_value_int32(env, resp, &rv);
     if (status != napi_ok) {
-        return NULL;
+        goto on_error;
     }
 
+    free(message);
     return resp;
+on_error:
+
+    free(message);
+    return NULL;
 }
 
 napi_value Init(napi_env env, napi_value exports) {
