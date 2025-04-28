@@ -355,7 +355,7 @@ napi_value Send(napi_env env, napi_callback_info info) {
         goto on_error;
     }
 
-    status = napi_get_value_string_utf8(env, argv[0], message, message_len, &message_len);
+    status = napi_get_value_string_utf8(env, argv[0], message, message_len + 1, &message_len);
     if (status != napi_ok) {
         napi_throw_error(env, NULL, "Expected 1 arguments");
         goto on_error;
